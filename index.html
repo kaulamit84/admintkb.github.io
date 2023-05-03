@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">  
+    <title>TKB Directory</title>    
+	<!-- CSS only -->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+	
+</head>
+<body>
+
+<div class="jumbotron"> 
+  <div class="container-fluid">
+    <hr/>
+    <a href="../admintkb.github.io/AddEditMember.html">Add, Edit or Delete Member</a>
+    <hr/>
+  </div>
+  <div class="container-fluid">	 
+		<button type="button" onclick="convertJsonToBootstrapTable(); showAllSearches();" class="btn btn-primary">
+		<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
+			  <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
+			  <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/>
+		</svg> View Member Directory</button>  				
+		<br>		 
+		<div id="searchTexts" style="display: none" >
+		    <br/>  
+			<br/> 
+			<button type="button" style="float: left;" onclick="hideAllSearches();" class="btn btn-sm btn-outline-secondary">
+			<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-slash-fill" viewBox="0 0 16 16">
+			  <path d="m10.79 12.912-1.614-1.615a3.5 3.5 0 0 1-4.474-4.474l-2.06-2.06C.938 6.278 0 8 0 8s3 5.5 8 5.5a7.029 7.029 0 0 0 2.79-.588zM5.21 3.088A7.028 7.028 0 0 1 8 2.5c5 0 8 5.5 8 5.5s-.939 1.721-2.641 3.238l-2.062-2.062a3.5 3.5 0 0 0-4.474-4.474L5.21 3.089z"/>
+			  <path d="M5.525 7.646a2.5 2.5 0 0 0 2.829 2.829l-2.83-2.829zm4.95.708-2.829-2.83a2.5 2.5 0 0 1 2.829 2.829zm3.171 6-12-12 .708-.708 12 12-.708.708z"/>
+			</svg> Hide Member Directory</button>
+			<br/>
+			<br/>
+			<h5 id="txtTotalRows" text=""></h5>
+			<br/> 
+			<h5 class="display-7">Search Contacts</h5>  
+			<hr class="my-4"> 
+			<input type="text" class="form-control" id="searchByFirstName" onkeyup="SearchByFirstName()" style="width:100%" placeholder="Search by First Name.." title="Type in a First Name">
+			<br/>		
+			<input type="text" class="form-control" id="searchByLastName" onkeyup="SearchByLastName()" style="width:100%" placeholder="Search by Last Name.." title="Type in a Last Name">
+			<br/>
+			<input type="text" class="form-control" id="searchByCity" onkeyup="SearchByCity()" style="width:100%"	placeholder="Search by City.." title="Type in a City">
+			<hr class="my-4"> 
+			<br/>
+			<!-- table to display the json data -->
+			<table id="display_json_data" class="table table-bordered table-striped"></table>
+		</div>		
+    </div>
+</div>
+
+
+<script>
+
+function SearchByCity() {
+  var input, filter, table, tr, td, i, txtValue;
+  input = document.getElementById("searchByCity");
+  filter = input.value.toUpperCase();
+  table = document.getElementById("display_json_data");  
+  tr = table.getElementsByTagName("tr");
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td")[1];
+    if (td) {
+      txtValue = td.textContent || td.innerText;
+      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        tr[i].style.display = "";
+      } else {
+        tr[i].style.display = "none";
+      }
+    }       
+  }
+}
+
+function SearchByFirstName() {
+  var input, filter, table, tr, td, i, txtValue;
+  input = document.getElementById("searchByFirstName");
+  filter = input.value.toUpperCase();
+  table = document.getElementById("display_json_data");
+  tr = table.getElementsByTagName("tr");
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td")[2];
+    if (td) {
+      txtValue = td.textContent || td.innerText;
+      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        tr[i].style.display = "";
+      } else {
+        tr[i].style.display = "none";
+      }
+    }       
+  }
+}
+
+function SearchByLastName() {
+  var input, filter, table, tr, td, i, txtValue;
+  input = document.getElementById("searchByLastName");
+  filter = input.value.toUpperCase();
+  table = document.getElementById("display_json_data");
+  tr = table.getElementsByTagName("tr");
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td")[3];
+    if (td) {
+      txtValue = td.textContent || td.innerText;
+      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        tr[i].style.display = "";
+      } else {
+        tr[i].style.display = "none";
+      }
+    }       
+  }
+}
+
+var memberJson;
+
+fetch('https://tkbmemberinformation-ac0be-default-rtdb.firebaseio.com/Members.json?print=pretty ')
+  .then(res => res.json())
+  .then(data => memberJson = data);
+
+var rowCount = 0;
+
+function convertJsonToBootstrapTable(){
+        //Get the headers from JSON data
+        var headers = Object.keys(memberJson[0]);
+         
+		    //Prepare html header
+		    var headerRowHTML='<tr>';
+		    for(var i=0;i<headers.length;i++){
+			      headerRowHTML+='<th>'+headers[i]+'</th>';			
+		    }
+		    //headerRowHTML+='<th>'+'Action'+'</th>';
+		    //headerRowHTML+='<th>'+'Member Id'+'</th>';
+		    headerRowHTML+='</tr>'; 
+
+        //Prepare all the member records as HTML
+        var allRecordsHTML='';
+        for(var i=0;i<memberJson.length;i++)
+        {
+            // Check if index exists
+            if(memberJson[i] == null)
+            {
+                i = i + 1;
+                rowCount = i;
+            }
+            else 
+            {
+                rowCount = i + 1;
+            }
+            
+            //Prepare html row
+            allRecordsHTML+='<tr>';
+
+            for(var j=0;j<headers.length;j++)
+            {
+                var header=headers[j];
+                allRecordsHTML+='<td>'+memberJson[i][header]+'</td>';						
+            }
+
+            //allRecordsHTML+='<td><a><button type="button" class="btn btn-danger" onclick="deleteMember(i)">Delete</button></a></td>';
+            //allRecordsHTML+='<td>'+ (i + 1) +'</td>';
+            allRecordsHTML+='</tr>'; 
+
+            
+        }
+         
+        //Append the table header and all records
+        var table=document.getElementById("display_json_data");
+        table.innerHTML=headerRowHTML + allRecordsHTML;
+}
+
+function showAllSearches(){
+	document.getElementById('searchTexts').style.display="block";	
+	document.getElementById('txtTotalRows').innerHTML = "Total Members: " + rowCount;
+	document.getElementById('txtTotalRows').style.display="block";	 
+}
+
+function hideAllSearches(){
+	document.getElementById('searchTexts').style.display="none";	
+}
+
+// function deleteMember(id)
+// {
+// 	fetch('https://tkbmemberinformation-ac0be-default-rtdb.firebaseio.com/Members/' + id + '.json', 	{ method: 'DELETE' }) 
+// 	 .then(() => console.log('Delete successful for: '+ id));
+// }
+
+
+</script>
+</body>
+</html>
